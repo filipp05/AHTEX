@@ -6,7 +6,7 @@ import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase'
 import { emptyDetails, parseDetails } from '@/lib/catalog'
 import type { CatalogItem, CatalogItemType } from '@/lib/types'
 
-type AuthState = 'loading' | 'signed-out' | 'checking' | 'forbidden' | 'admin'
+type AuthState = 'loading' | 'signed-out' | 'checking' | 'forbidden' | 'error' | 'admin'
 type EditorState = { id?: string; item_type: CatalogItemType; title: string; description: string; specsText: string; variantsText: string; application: string; length: boolean; documentsText: string }
 
 const emptyEditor: EditorState = { item_type: 'product', title: '', description: '', specsText: '', variantsText: '', application: '', length: false, documentsText: '' }
@@ -30,7 +30,8 @@ export function AdminPanel() {
 
     setAuthState('checking')
     const { data: isAdmin, error: roleError } = await supabase.rpc('is_site_admin').retry(false).abortSignal(AbortSignal.timeout(10000))
-    if (roleError || !isAdmin) {
+    if (roleError) { setAuthState('error'); return }
+    if (!isAdmin) {
       setAuthState('forbidden')
       return
     }
@@ -43,6 +44,7 @@ export function AdminPanel() {
     if (error) {
       setMessage('Не удалось загрузить каталог. Проверьте соединение и настройки базы.')
       setItems([])
+      setAuthState('error'); return
     } else {
       try { setItems((data ?? []).map(item => ({ ...item, details: parseDetails(item.details) })) as CatalogItem[]) } catch { setItems([]); setMessage('Некорректные данные каталога. Проверьте миграцию базы.')}
     }
@@ -163,6 +165,8 @@ export function AdminPanel() {
       </form>
     )
   }
+
+  if (authState === 'error') return <div className="admin-state"><h2>Не удалось проверить доступ</h2><p>Проверьте соединение и повторите попытку.</p><button className="button primary" onClick={() => void loadAdminData(session)}>Повторить</button><button className="text-button" onClick={signOut}>Выйти</button></div>
 
   if (authState === 'forbidden') {
     return (

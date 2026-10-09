@@ -25,7 +25,7 @@ test('HTTP form failure retains draft; success clears it',async({page})=>{
  await page.getByLabel('Электронная почта',{exact:true}).fill('test@example.com')
  await page.getByRole('checkbox').check()
  await page.getByRole('button',{name:'Отправить заявку',exact:true}).click()
- await expect(page.locator('.form-status')).toContainText('Не удалось отправить')
+ await expect(page.locator('.form-status')).toContainText('Не удалось подтвердить отправку')
  await expect(page.getByLabel('Контактное лицо')).toHaveValue('Тест')
  await expect(page.locator('.selected-row')).toHaveCount(1)
  expect(payload).toContain('ТФА45')
@@ -59,3 +59,16 @@ for(const allowed of [false,true]) {
   expect(saved?.details).toEqual(seed[0].details)
  })
 }
+
+test('role lookup outage offers retry instead of claiming user is forbidden',async({page})=>{
+ const user={id:'00000000-0000-4000-8000-000000000001',aud:'authenticated',email:'editor@example.com',role:'authenticated'}
+ await page.addInitScript(({user})=>localStorage.setItem('sb-anteh-test-auth-token',JSON.stringify({access_token:'qa-token',refresh_token:'qa-refresh',expires_at:Math.floor(Date.now()/1000)+3600,token_type:'bearer',user})),{user})
+ await page.route(`${api}/auth/v1/**`,r=>r.fulfill({json:user}))
+ let failing=true
+ await page.route(`${api}/rest/v1/rpc/is_site_admin`,r=>r.fulfill({status:failing?503:200,json:failing?{message:'Unavailable'}:true}))
+ await page.goto('/admin/')
+ await expect(page.getByRole('heading',{name:'Не удалось проверить доступ'})).toBeVisible()
+ failing=false
+ await page.getByRole('button',{name:'Повторить',exact:true}).click()
+ await expect(page.getByRole('heading',{name:'Каталог',exact:true})).toBeVisible()
+})

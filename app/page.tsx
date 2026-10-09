@@ -36,15 +36,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="audience-strip">
-        <div className="container audience-grid">
-          <p>Для предприятий, где надёжность крепления — часть безопасности работ</p>
-          <div><span>01</span>Подземные рудники</div>
-          <div><span>02</span>Шахты</div>
-          <div><span>03</span>ГОК и подрядчики</div>
-        </div>
-      </section>
-
       <section className="section intro-section">
         <div className="container split-heading">
           <div>

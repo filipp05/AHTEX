@@ -72,8 +72,8 @@ export function RequestForm() {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: { Accept: 'application/json' },
-        body: formData,
+        headers: endpoint.startsWith('/') ? { Accept: 'application/json', 'Content-Type': 'application/json' } : { Accept: 'application/json' },
+        body: endpoint.startsWith('/') ? JSON.stringify(Object.fromEntries(formData)) : formData,
         signal: AbortSignal.timeout(15000),
       })
       if (!response.ok) throw new Error(`Ошибка отправки: ${response.status}`)
@@ -168,7 +168,7 @@ export function RequestForm() {
           <label>
             <span>Тип обращения</span>
             <select name="Тип обращения" defaultValue="Запрос коммерческого предложения">
-              <option>Запрос коммерческого предложения</option>
+              <option value="Запрос коммерческого предложения">Коммерческое предложение</option>
               <option>Техническая консультация</option>
               <option>Запрос документации</option>
             </select>
@@ -212,7 +212,7 @@ export function RequestForm() {
           )}
           {status === 'success' && <p className="success">Заявка отправлена. Спасибо!</p>}
           {status === 'error' && (
-            <p className="error">Не удалось отправить заявку. Данные остались в форме — попробуйте ещё раз позже.</p>
+            <p className="error">Не удалось подтвердить отправку заявки. Данные остались в форме — попробуйте ещё раз позже.</p>
           )}
         </div>
       </form>
