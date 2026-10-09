@@ -7,3 +7,10 @@ coverage/
 *.log
 *.tsbuildinfo
 .DS_Store
+
+.env.*
+!.env.example
+!deploy/.env.example
+qa/
+playwright-report/
+test-results/

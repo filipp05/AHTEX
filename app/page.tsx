@@ -11,9 +11,9 @@ export default function HomePage() {
         <div className="container hero-content">
           <div className="hero-copy">
             <p className="eyebrow light">Российский производитель</p>
-            <h1>Крепление, рассчитанное на реальные условия подземных работ</h1>
+            <h1>Анкерная крепь для подземных работ</h1>
             <p className="hero-lead">
-              «Антех Восток» производит фрикционные трубчатые анкеры и разрабатывает решения
+              «Анкерные технологии Восток» — производитель трубчатых фрикционных анкеров и комплектующих
               для крепления и усиления горных выработок.
             </p>
             <div className="hero-actions">
@@ -26,7 +26,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="hero-visual-wrap">
-            <TechnicalVisual label="Место для фотографии продукции" />
+            <TechnicalVisual label="Трубчатый анкер · схематическая иллюстрация" />
           </div>
         </div>
         <div className="container hero-index">
@@ -49,12 +49,11 @@ export default function HomePage() {
         <div className="container split-heading">
           <div>
             <p className="eyebrow">Подход</p>
-            <h2>Не просто поставка. Решение под условия объекта.</h2>
+            <h2>Продукция под условия вашего объекта.</h2>
           </div>
           <div className="large-copy">
             <p>
-              Посетитель может выбрать продукцию и услуги в каталоге, указать требуемый объём
-              и отправить одну собранную заявку на коммерческое предложение или консультацию.
+              Выберите анкерную крепь, опорные плиты и армокаркасы. Укажите исполнение и объём — специалисты подготовят предложение по вашей задаче.
             </p>
             <Link className="text-link" href="/catalog/">Перейти в единый каталог <ArrowIcon /></Link>
           </div>
@@ -68,7 +67,7 @@ export default function HomePage() {
               <p className="eyebrow light">Применение</p>
               <h2>Задачи, с которыми обращаются специалисты</h2>
             </div>
-            <p>Формулировки взяты из анкеты заказчика и не содержат неподтверждённых характеристик.</p>
+            <p>Для шахт, рудников и подрядчиков, работающих под землёй.</p>
           </div>
           <div className="application-grid">
             {[
@@ -89,14 +88,14 @@ export default function HomePage() {
 
       <section className="section production-teaser">
         <div className="container production-grid">
-          <TechnicalVisual label="Фотографии производства будут добавлены после передачи заказчиком" />
+          <TechnicalVisual label="Анкерное крепление · схематическая иллюстрация" />
           <div className="production-copy">
             <p className="eyebrow">Собственное производство</p>
-            <h2>Производственная база — главный аргумент компании</h2>
+            <h2>Серийное производство в Хабаровске</h2>
             <p>
-              Раздел подготовлен для подтверждённых сведений об оборудовании, этапах производства
-              и контроле качества. До получения материалов мы не публикуем вымышленные показатели.
+              Автоматизированная линия выпускает до 80 000 комплектов анкеров с опорными плитами в месяц. Геометрические и механические характеристики проходят контроль.
             </p>
+            <p>«АнТех Восток» развивает производство систем крепления для горнодобывающей промышленности, тоннельного и инфраструктурного строительства. Одно из направлений — сотрудничество с «Карбо-ЦАКК» и объединение производственных возможностей с отраслевой экспертизой.</p>
             <Link className="button secondary" href="/production/">О производстве <ArrowIcon /></Link>
           </div>
         </div>
@@ -114,13 +113,13 @@ export default function HomePage() {
             <Link href="/catalog/" className="tool-card">
               <span className="icon-box"><ShieldIcon /></span>
               <h3>Каталог решений</h3>
-              <p>Продукция и услуги в одном месте без повторяющихся описаний.</p>
+              <p>Исполнения ТФА, комплектующие и услуги производства.</p>
               <span className="text-link">Открыть каталог <ArrowIcon /></span>
             </Link>
             <Link href="/documents/" className="tool-card">
               <span className="icon-box red"><FileIcon /></span>
               <h3>Документация</h3>
-              <p>Место для паспортов, сертификатов, каталогов и технических материалов.</p>
+              <p>Обозначение технических условий и запрос документов на продукцию.</p>
               <span className="text-link">К документам <ArrowIcon /></span>
             </Link>
           </div>

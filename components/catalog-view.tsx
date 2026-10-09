@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { fallbackCatalog } from '@/lib/fallback-catalog'
 import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase'
 import type { CatalogItem, CatalogItemType } from '@/lib/types'
-import { CheckIcon, PlusIcon } from './icons'
+import { CatalogCard } from './catalog-card'
+import { parseDetails } from '@/lib/catalog'
 import { useSelection } from './selection-provider'
 
 const labels: Record<CatalogItemType, string> = {
@@ -17,7 +18,7 @@ export function CatalogView() {
   const [items, setItems] = useState<CatalogItem[]>(fallbackCatalog)
   const [loading, setLoading] = useState(isSupabaseConfigured())
   const [notice, setNotice] = useState('')
-  const { selected, toggle, has } = useSelection()
+  const { selected } = useSelection()
 
   useEffect(() => {
     const supabase = getSupabaseClient()
@@ -28,12 +29,14 @@ export function CatalogView() {
       .from('catalog_items')
       .select('*')
       .order('created_at', { ascending: true })
+      .retry(false)
+      .abortSignal(AbortSignal.timeout(8000))
       .then(({ data, error }) => {
         if (!active) return
         if (error) {
           setNotice('Не удалось обновить каталог. Показана сохранённая базовая версия.')
         } else if (data) {
-          setItems(data as CatalogItem[])
+          try { setItems(data.map(item => ({ ...item, details: parseDetails(item.details) })) as CatalogItem[]) } catch { setNotice('Не удалось обновить каталог. Показана сохранённая версия.') }
         }
         setLoading(false)
       })
@@ -50,13 +53,12 @@ export function CatalogView() {
 
   return (
     <>
-      <div className="catalog-toolbar" role="tablist" aria-label="Вид каталога">
+      <div className="catalog-toolbar" role="group" aria-label="Вид каталога">
         {(Object.keys(labels) as CatalogItemType[]).map((type) => (
           <button
             key={type}
             type="button"
-            role="tab"
-            aria-selected={activeType === type}
+            aria-pressed={activeType === type}
             className={activeType === type ? 'active' : ''}
             onClick={() => setActiveType(type)}
           >
@@ -74,41 +76,13 @@ export function CatalogView() {
           <p className="eyebrow">Раздел готов</p>
           <h2>Перечень {activeType === 'service' ? 'услуг' : 'продукции'} уточняется</h2>
           <p>
-            Здесь появятся только подтверждённые заказчиком позиции. Общую техническую консультацию
-            уже можно запросить в форме ниже.
+            Уточните необходимую продукцию или услугу в обращении — поможем с подбором.
           </p>
           <a className="button secondary" href="#request">Перейти к форме</a>
         </div>
       ) : (
         <div className="catalog-grid">
-          {visibleItems.map((item, index) => {
-            const selectedItem = has(item.id)
-            return (
-              <article className={`catalog-card ${item.item_type} visual-${index % 3}`} key={item.id}>
-                <div className="catalog-card-topline">
-                  <span>{activeType === 'product' ? 'П' : 'У'}—{String(index + 1).padStart(2, '0')}</span>
-                  <span>{labels[item.item_type]}</span>
-                </div>
-                <div className="catalog-card-visual" aria-hidden="true">
-                  <span />
-                  <i />
-                </div>
-                <div>
-                  <h2>{item.title}</h2>
-                  <p>{item.description}</p>
-                </div>
-                <button
-                  type="button"
-                  className={`add-button ${selectedItem ? 'selected' : ''}`}
-                  onClick={() => toggle(item)}
-                  aria-pressed={selectedItem}
-                >
-                  {selectedItem ? <CheckIcon /> : <PlusIcon />}
-                  {selectedItem ? 'В заявке' : 'Добавить в заявку'}
-                </button>
-              </article>
-            )
-          })}
+          {visibleItems.map((item, index) => <CatalogCard key={item.id} item={item} index={index} />)}
         </div>
       )}
 
@@ -117,7 +91,7 @@ export function CatalogView() {
           <div>
             <span className="selection-count">{selected.length}</span>
             <span>
-              {selected.length === 1 ? 'позиция выбрана' : selected.length < 5 ? 'позиции выбраны' : 'позиций выбрано'}
+              {selected.length === 1 ? 'позиция выбрана' : selected.length % 10 >= 2 && selected.length % 10 <= 4 && (selected.length % 100 < 12 || selected.length % 100 > 14) ? 'позиции выбраны' : 'позиций выбрано'}
             </span>
           </div>
           <a href="#request" className="button primary">Перейти к заявке</a>

@@ -5,7 +5,7 @@ import { RequestForm } from '@/components/request-form'
 
 export const metadata: Metadata = {
   title: 'Продукция и услуги',
-  description: 'Единый каталог продукции и услуг «Антех Восток» с возможностью собрать заявку.',
+  description: 'Единый каталог продукции и услуг «АнТех Восток» с возможностью собрать заявку.',
 }
 
 export default function CatalogPage() {

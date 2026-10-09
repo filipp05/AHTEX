@@ -11,15 +11,15 @@ const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL
 export const metadata: Metadata = {
   metadataBase: configuredUrl ? new URL(configuredUrl) : undefined,
   title: {
-    default: 'Антех Восток — решения для крепления горных выработок',
-    template: '%s — Антех Восток',
+    default: 'АнТех Восток — решения для крепления горных выработок',
+    template: '%s — АнТех Восток',
   },
   description: site.description,
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
     siteName: site.name,
-    title: 'Антех Восток — решения для крепления горных выработок',
+    title: 'АнТех Восток — решения для крепления горных выработок',
     description: site.description,
   },
   robots: configuredUrl ? { index: true, follow: true } : { index: false, follow: false },
@@ -43,8 +43,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         <SelectionProvider>
+          <a className="skip-link" href="#main-content">Перейти к содержимому</a>
           <Header />
-          <main>{children}</main>
+          <main id="main-content">{children}</main>
           <Footer />
         </SelectionProvider>
       </body>

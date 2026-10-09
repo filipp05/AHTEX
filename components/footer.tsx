@@ -8,7 +8,7 @@ export function Footer() {
       <div className="footer-grid">
         <div>
           <div className="footer-brand">
-            <Image src="/anteh-logo.png" alt="Анкерные технологии Восток" width={226} height={75} />
+            <Image src="/anteh-logo.webp" alt="Анкерные технологии Восток" width={226} height={71} />
           </div>
           <p className="footer-description">{site.description}</p>
         </div>
@@ -22,7 +22,7 @@ export function Footer() {
         </div>
         <div>
           <p className="footer-title">Связаться</p>
-          <p className="footer-muted">Контакты будут опубликованы после подтверждения заказчиком.</p>
+          <div className="footer-links"><a href={site.phoneHref}>{site.phone}</a><a href={`mailto:${site.email}`}>{site.email}</a></div>
           <Link className="text-link light" href="/catalog/#request">Оставить заявку →</Link>
         </div>
       </div>

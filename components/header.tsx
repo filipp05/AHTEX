@@ -14,14 +14,14 @@ export function Header() {
   const { selected } = useSelection()
 
   return (
-    <header className="site-header">
+    <header className="site-header" onKeyDown={event => { if (event.key === 'Escape') { setOpen(false); document.querySelector<HTMLButtonElement>('.menu-button')?.focus() } }}>
       <div className="header-inner">
-        <Link href="/" className="brand" aria-label="Антех Восток — на главную">
+        <Link href="/" className="brand" aria-label="АнТех Восток — на главную">
           <Image
-            src="/anteh-logo.png"
+            src="/anteh-logo.webp"
             alt="Анкерные технологии Восток"
             width={226}
-            height={75}
+            height={71}
             priority
             className="brand-image"
           />
@@ -32,7 +32,8 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className={pathname.startsWith(item.href.slice(0, -1)) ? 'active' : undefined}
+              aria-current={(item.href === '/' ? pathname === '/' : pathname.startsWith(item.href.slice(0, -1))) ? 'page' : undefined}
+              className={(item.href === '/' ? pathname === '/' : pathname.startsWith(item.href.slice(0, -1))) ? 'active' : undefined}
             >
               {item.label}
             </Link>

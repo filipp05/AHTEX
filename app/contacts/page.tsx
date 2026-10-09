@@ -1,39 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowIcon } from '@/components/icons'
 import { PageHero } from '@/components/page-hero'
-
-export const metadata: Metadata = {
-  title: 'Контакты',
-  description: 'Контакты компании «Антех Восток» и форма обращения.',
-}
-
+import { site } from '@/content/site'
+export const metadata: Metadata = { title: 'Контакты' }
 export default function ContactsPage() {
-  return (
-    <>
-      <PageHero eyebrow="Связаться с нами" title="Контакты">
-        <p>Подтверждённые телефон, электронная почта, адрес и режим работы будут добавлены перед публикацией.</p>
-      </PageHero>
-      <section className="section">
-        <div className="container contacts-grid">
-          <div className="contact-placeholder">
-            <span>Телефон</span><strong>Ожидается от заказчика</strong>
-          </div>
-          <div className="contact-placeholder">
-            <span>Электронная почта</span><strong>Ожидается от заказчика</strong>
-          </div>
-          <div className="contact-placeholder">
-            <span>Адрес</span><strong>Ожидается от заказчика</strong>
-          </div>
-          <div className="contact-placeholder">
-            <span>Режим работы</span><strong>Ожидается от заказчика</strong>
-          </div>
-        </div>
-        <div className="container contact-action">
-          <div><p className="eyebrow">Обратная связь</p><h2>Форма заявки уже подготовлена</h2></div>
-          <Link className="button primary" href="/catalog/#request">Перейти к форме <ArrowIcon /></Link>
-        </div>
-      </section>
-    </>
-  )
+  return <><PageHero eyebrow="Обсудим вашу задачу" title="На связи с производством"><p>Подбор продукции, комплектация и коммерческие предложения.</p></PageHero>
+    <section className="section"><div className="container contacts-grid">
+      <a className="contact-placeholder" href={site.phoneHref}><span>Позвонить</span><strong>{site.phone}</strong></a>
+      <a className="contact-placeholder" href={`mailto:${site.email}`}><span>Написать · заявки и документы</span><strong>{site.email}</strong></a>
+    </div><div className="container contact-action"><div><p className="eyebrow">Коммерческое предложение</p><h2>Соберите свой запрос</h2><p>Выберите продукцию, исполнение и необходимый объём.</p></div><Link className="button primary" href="/catalog/#request">Перейти к заявке →</Link></div>
+    <div className="container company-details"><h2>Реквизиты</h2><p>{site.legalName}</p><dl><div><dt>ИНН</dt><dd>{site.inn}</dd></div><div><dt>КПП</dt><dd>{site.kpp}</dd></div><div><dt>ОГРН</dt><dd>{site.ogrn}</dd></div><div><dt>Юридический адрес</dt><dd>{site.legalAddress}</dd></div></dl></div></section></>
 }

@@ -16,7 +16,7 @@ const STORAGE_KEY = 'anteh-request-items'
 
 type SelectionContextValue = {
   selected: SelectedItem[]
-  toggle: (item: CatalogItem) => void
+  toggle: (item: CatalogItem & { configuration?: string }) => void
   remove: (id: string) => void
   setAmount: (id: string, amount: string) => void
   clear: () => void
@@ -35,7 +35,8 @@ function isStoredSelection(value: unknown): value is SelectedItem[] {
         typeof item.id === 'string' &&
         typeof item.title === 'string' &&
         (item.item_type === 'product' || item.item_type === 'service') &&
-        typeof item.amount === 'string',
+        typeof item.amount === 'string' &&
+        (item.configuration === undefined || typeof item.configuration === 'string'),
     )
   )
 }
@@ -53,7 +54,7 @@ export function SelectionProvider({ children }: { children: ReactNode }) {
           if (isStoredSelection(parsed)) setSelected(parsed)
         }
       } catch {
-        window.sessionStorage.removeItem(STORAGE_KEY)
+        // Storage can be disabled; the current session still works.
       } finally {
         setReady(true)
       }
@@ -64,10 +65,10 @@ export function SelectionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!ready) return
-    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(selected))
+    try { window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(selected)) } catch { /* In-memory selection remains available. */ }
   }, [ready, selected])
 
-  const toggle = useCallback((item: CatalogItem) => {
+  const toggle = useCallback((item: CatalogItem & { configuration?: string }) => {
     setSelected((current) => toggleSelection(current, item))
   }, [])
 

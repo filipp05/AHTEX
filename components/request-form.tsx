@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { site } from '@/content/site'
 import { serializeSelectedItems } from '@/lib/selection'
 import { CloseIcon } from './icons'
 import { useSelection } from './selection-provider'
@@ -9,11 +10,37 @@ import { useSelection } from './selection-provider'
 type FormStatus = 'idle' | 'sending' | 'success' | 'error' | 'demo'
 
 const endpoint = process.env.NEXT_PUBLIC_FORM_ENDPOINT
+const DRAFT_KEY = 'anteh-contact-draft'
 
 export function RequestForm() {
   const { selected, remove, setAmount, clear } = useSelection()
   const [status, setStatus] = useState<FormStatus>('idle')
   const [contactError, setContactError] = useState('')
+  const [prepared, setPrepared] = useState('')
+  const [copyStatus, setCopyStatus] = useState('')
+  const formRef = useRef<HTMLFormElement>(null)
+  useEffect(() => {
+    try {
+      const draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY) ?? '{}')
+      for (const element of Array.from(formRef.current?.elements ?? [])) {
+        if ((element instanceof HTMLInputElement && !['checkbox', 'hidden'].includes(element.type)) || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
+          if (typeof draft[element.name] === 'string' && element.name !== 'company_website') element.value = draft[element.name]
+        }
+      }
+    } catch { /* Ignore invalid or unavailable storage. */ }
+  }, [])
+  function saveDraft() {
+    setPrepared(''); setCopyStatus(''); setStatus('idle')
+    if (!formRef.current) return
+    const data = Object.fromEntries(new FormData(formRef.current))
+    delete data['Согласие']; delete data.company_website
+    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(data)) } catch { /* Form still works. */ }
+  }
+  useEffect(() => { queueMicrotask(() => { setPrepared(''); setStatus(current => current === 'demo' ? 'idle' : current) }) }, [selected])
+  async function copyRequest() {
+    try { await navigator.clipboard.writeText(prepared); setCopyStatus('Текст скопирован.') }
+    catch { setCopyStatus('Выделите и скопируйте текст ниже.') }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -30,11 +57,13 @@ export function RequestForm() {
       return
     }
 
+    if (!String(formData.get('Контактное лицо') ?? '').trim()) { setContactError('Укажите имя контактного лица.'); return }
     setContactError('')
-    formData.set('_subject', 'Новая заявка с сайта «Антех Восток»')
+    formData.set('_subject', 'Новая заявка с сайта «АнТех Восток»')
     formData.set('Состав заявки', serializeSelectedItems(selected))
 
     if (!endpoint) {
+      setPrepared(Array.from(formData.entries()).filter(([key]) => !['_subject','company_website','Согласие'].includes(key)).map(([key,value]) => `${key}: ${value}`).join('\n\n'))
       setStatus('demo')
       return
     }
@@ -45,9 +74,11 @@ export function RequestForm() {
         method: 'POST',
         headers: { Accept: 'application/json' },
         body: formData,
+        signal: AbortSignal.timeout(15000),
       })
       if (!response.ok) throw new Error(`Ошибка отправки: ${response.status}`)
       form.reset()
+      try { sessionStorage.removeItem(DRAFT_KEY) } catch {}
       clear()
       setStatus('success')
     } catch {
@@ -65,19 +96,20 @@ export function RequestForm() {
         </p>
       </div>
 
-      <form className="request-form" onSubmit={handleSubmit}>
+      <form ref={formRef} className="request-form" onSubmit={handleSubmit} onInput={saveDraft}>
+        {!endpoint && <p className="request-notice">Онлайн-отправка пока недоступна. Подготовьте запрос и отправьте его на <a href={`mailto:${site.email}`}>{site.email}</a>.</p>}
         <div className="form-section-heading">
           <span>01</span>
           <div>
             <h3>Состав заявки</h3>
-            <p>Описания не повторяются — только выбранные позиции и необходимый объём.</p>
+            <p>Проверьте выбранные исполнения и укажите необходимый объём.</p>
           </div>
         </div>
 
         {selected.length === 0 ? (
           <div className="selection-empty">
             <p>Позиции не выбраны</p>
-            <span>Форма будет отправлена как запрос на общую консультацию.</span>
+            <span>Можно обратиться за общей технической консультацией.</span>
           </div>
         ) : (
           <div className="selected-list">
@@ -85,7 +117,7 @@ export function RequestForm() {
               <div className="selected-row" key={item.id}>
                 <div className="selected-item-name">
                   <span>{item.item_type === 'product' ? 'Продукция' : 'Услуга'}</span>
-                  <strong>{item.title}</strong>
+                  <strong>{item.title}</strong>{item.configuration && <small>{item.configuration}</small>}
                 </div>
                 <label>
                   <span>Количество или объём</span>
@@ -108,7 +140,7 @@ export function RequestForm() {
           <span>02</span>
           <div>
             <h3>Контактные данные</h3>
-            <p>Поля со звёздочкой обязательны.</p>
+            <p>Укажите имя и хотя бы один способ связи: телефон или почту.</p>
           </div>
         </div>
 
@@ -169,14 +201,14 @@ export function RequestForm() {
 
         <div className="form-actions">
           <button className="button accent" type="submit" disabled={status === 'sending'}>
-            {status === 'sending' ? 'Отправляем…' : 'Отправить заявку'}
+            {status === 'sending' ? 'Отправляем…' : endpoint ? 'Отправить заявку' : 'Подготовить запрос'}
           </button>
-          <p>Пароль от корпоративной почты сайту не требуется.</p>
+          <p>Данные используются для ответа на ваше обращение.</p>
         </div>
 
         <div className="form-status" aria-live="polite">
           {status === 'demo' && (
-            <p className="demo">Отправка пока не подключена. Введённые данные сохранены в форме.</p>
+            <div className="prepared-request"><p>Запрос подготовлен, но ещё не отправлен.</p><div className="prepared-actions"><button type="button" className="button secondary" onClick={copyRequest}>Скопировать текст</button><a className="button primary" href={`mailto:${site.email}?subject=${encodeURIComponent('Запрос с сайта АнТех Восток')}&body=${encodeURIComponent(prepared)}`}>Открыть почту →</a></div><p>{copyStatus}</p><label><span>Текст запроса</span><textarea readOnly rows={8} value={prepared}/></label></div>
           )}
           {status === 'success' && <p className="success">Заявка отправлена. Спасибо!</p>}
           {status === 'error' && (
