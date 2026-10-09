@@ -22,7 +22,7 @@ export function Footer() {
         </div>
         <div>
           <p className="footer-title">Связаться</p>
-          <div className="footer-links"><a href={site.phoneHref}>{site.phone}</a><a href={`mailto:${site.email}`}>{site.email}</a></div>
+          <div className="footer-links footer-contacts"><a href={site.phoneHref}>{site.phone}</a><a href={`mailto:${site.email}`}>{site.email}</a></div>
           <Link className="text-link light" href="/catalog/#request">Оставить заявку →</Link>
         </div>
       </div>

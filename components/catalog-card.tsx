@@ -32,7 +32,7 @@ export function CatalogCard({ item, index }: { item: CatalogItem; index: number 
     </details>}
     {details.documents.filter(d => safeDocumentUrl(d.url)).map(d => <a key={d.url} className="text-link" href={d.url}>{d.title} · PDF</a>)}
     <div className="card-config">
-      {details.variants.length > 0 && <label><span>Исполнение</span><select value={variant} onChange={e => setVariant(e.target.value)}><option value="">Помогите подобрать</option>{details.variants.map(v => <option key={v}>{v}</option>)}</select></label>}
+      {details.variants.length > 0 && <label><span>Исполнение</span><select value={variant} onChange={e => setVariant(e.target.value)}><option value="">Подобрать</option>{details.variants.map(v => <option key={v}>{v}</option>)}</select></label>}
       {details.length && <label><span>Длина, мм</span><input inputMode="numeric" value={length} onChange={e => setLength(e.target.value)} placeholder="Например, 1800" maxLength={5}/><small>600–3000 мм; другие длины — по согласованию</small></label>}
     </div>
     {error && <p className="field-error" role="alert">{error}</p>}
