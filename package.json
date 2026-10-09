@@ -14,14 +14,19 @@
     "test:connected": "node scripts/test-connected.mjs",
     "start:api": "node --env-file-if-exists=.env.server server/start.mjs",
     "test:mail": "node --test server/*.test.mjs",
-    "test:mail:browser": "node scripts/test-mail-browser.mjs"
+    "test:mail:browser": "node scripts/test-mail-browser.mjs",
+    "admin:user": "node --env-file-if-exists=.env.server scripts/admin-user.mjs",
+    "admin:backup": "node --env-file-if-exists=.env.server scripts/admin-backup.mjs",
+    "test:server": "node --test server/*.test.mjs"
   },
   "dependencies": {
     "@fontsource-variable/onest": "^5.3.1",
     "next": "^16.4.0",
     "nodemailer": "^10.0.16",
+    "proper-lockfile": "^4.1.2",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

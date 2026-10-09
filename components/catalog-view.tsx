@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { catalogItems } from '@/lib/static-catalog'
-import type { CatalogItemType } from '@/lib/types'
+import { useEffect, useMemo, useState } from 'react'
+import { parseCatalog } from '@/lib/catalog'
+import type { CatalogItem, CatalogItemType } from '@/lib/types'
 import { CatalogCard } from './catalog-card'
 import { useSelection } from './selection-provider'
 
@@ -13,7 +13,15 @@ const labels: Record<CatalogItemType, string> = {
 
 export function CatalogView() {
   const [activeType, setActiveType] = useState<CatalogItemType>('product')
-  const items = catalogItems
+  const [items,setItems] = useState<CatalogItem[]>([])
+  const [loading,setLoading] = useState(true)
+  const [failed,setFailed] = useState(false)
+  const [attempt,setAttempt] = useState(0)
+  useEffect(()=>{
+    const controller=new AbortController()
+    fetch('/api/catalog',{cache:'no-store',signal:AbortSignal.any([controller.signal,AbortSignal.timeout(8000)])}).then(async r=>{if(!r.ok)throw new Error('Unavailable');return r.json()}).then(data=>{setItems(parseCatalog(data.items));setFailed(false)}).catch(()=>{if(!controller.signal.aborted)setFailed(true)}).finally(()=>{if(!controller.signal.aborted)setLoading(false)})
+    return()=>controller.abort()
+  },[attempt])
   const { selected } = useSelection()
 
   const visibleItems = useMemo(
@@ -38,7 +46,7 @@ export function CatalogView() {
         ))}
       </div>
 
-      {visibleItems.length === 0 ? (
+      {loading ? <p role="status">Загружаем каталог…</p> : failed ? <div className="catalog-empty"><h2>Не удалось загрузить каталог</h2><p>Проверьте соединение или отправьте общий запрос ниже.</p><button className="button secondary" onClick={()=>{setLoading(true);setAttempt(v=>v+1)}}>Повторить</button></div> : visibleItems.length === 0 ? (
         <div className="catalog-empty">
           <p className="eyebrow">Раздел готов</p>
           <h2>Перечень {activeType === 'service' ? 'услуг' : 'продукции'} уточняется</h2>

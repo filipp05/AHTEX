@@ -16,12 +16,13 @@ export function validateRequest(data) {
 }
 
 // One API process behind nginx. No request body, email or IP is written to logs/disk.
-export function createApp({ mailer = null, origin, trustProxy = false, rateLimit = 5, now = Date.now } = {}) {
+export function createApp({ mailer = null, origin, trustProxy = false, rateLimit = 5, now = Date.now, adminHandler = null } = {}) {
   const rates = new Map()
   const sent = new Map()
   function reply(res, code, value) { res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(value)) }
   const server = createServer(async (req, res) => {
-    if (req.url === '/health' && req.method === 'GET') return reply(res, mailer ? 200 : 503, { ready: Boolean(mailer) })
+    if (adminHandler && await adminHandler(req, res)) return
+    if (req.url === '/health' && req.method === 'GET') return reply(res, adminHandler || mailer ? 200 : 503, { ready: Boolean(adminHandler || mailer), mail: Boolean(mailer) })
     if (req.url !== '/api/request') return reply(res, 404, { error: 'Not found' })
     if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return reply(res, 405, { error: 'Method not allowed' }) }
     if (!origin || req.headers.origin !== origin) return reply(res, 403, { error: 'Origin rejected' })

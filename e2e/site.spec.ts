@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-const routes=['/','/catalog/','/production/','/documents/','/contacts/','/privacy/','/404.html']
+const routes=['/','/catalog/','/production/','/documents/','/contacts/','/privacy/','/admin/','/404.html']
 for (const width of [375,768,1440,1920]) {
  test(`pages, layout and accessibility at ${width}px`, async ({ page }) => {
   await page.setViewportSize({width,height:1000})
@@ -80,14 +80,14 @@ test('mobile navigation and invalid storage',async({page})=>{
  await expect(page.locator('.catalog-card')).toHaveCount(3)
 })
 
-test('catalog uses local content without external data requests or admin entry', async ({page}) => {
+test('catalog uses own API and provides staff login', async ({page}) => {
  const external:string[]=[]
  page.on('request',request=>{ if (['fetch','xhr'].includes(request.resourceType()) && !request.url().startsWith('http://127.0.0.1:3100/')) external.push(request.url()) })
  await page.goto('/catalog/')
  await expect(page.locator('.catalog-card')).toHaveCount(3)
  await page.getByRole('button',{name:/Услуги/}).click()
  await expect(page.locator('.catalog-card')).toHaveCount(4)
- await expect(page.locator('a[href="/admin/"]')).toHaveCount(0)
+ await expect(page.locator('a[href="/admin/"]').first()).toHaveText('Вход')
  expect(external).toEqual([])
- expect((await page.goto('/admin/'))?.status()).toBe(404)
+ expect((await page.goto('/admin/'))?.status()).toBe(200)
 })

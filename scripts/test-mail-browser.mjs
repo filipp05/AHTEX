@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises'
+import { migrateSeed } from '../server/catalog-service.mjs'
 import { spawnSync, spawn } from 'node:child_process'
 import { once } from 'node:events'
 import assert from 'node:assert/strict'
@@ -29,11 +31,14 @@ try {
  for(let i=0;i<40;i++){try{if((await fetch(origin)).ok)break}catch{}await new Promise(r=>setTimeout(r,100))}
  browser=await chromium.launch()
  const page=await browser.newPage()
+ const awaitSeed=await readFile('content/catalog.json','utf8')
  // Local reverse-proxy fixture: browser request goes through the real API to SMTP.
  await page.route('**/api/request',async route=>{
   const response=await route.fetch({url:`http://127.0.0.1:${api.address().port}/api/request`,headers:{...route.request().headers(),origin}})
   await route.fulfill({response})
  })
+ await page.route('**/api/catalog',route=>route.fulfill({json:{items:migrateSeed(JSON.parse(awaitSeed))}}))
+ await page.route('**/api/admin/me',route=>route.fulfill({status:401,json:{error:'Login required'}}))
  await page.goto(origin+'/catalog/')
  await page.locator('.catalog-card').first().getByLabel('Исполнение').selectOption('ТФА45')
  await page.locator('.catalog-card').first().getByLabel('Длина, мм').fill('1800')

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { navigation } from '@/content/site'
 import { useSelection } from './selection-provider'
+import { StaffLink } from './staff-link'
 import { CloseIcon, MenuIcon } from './icons'
 
 export function Header() {
@@ -45,6 +46,8 @@ export function Header() {
           {selected.length > 0 && <span aria-label={`Выбрано позиций: ${selected.length}`}>{selected.length}</span>}
         </Link>
 
+        <div className="desktop-staff"><StaffLink/></div>
+
         <button
           className="menu-button"
           type="button"
@@ -70,6 +73,7 @@ export function Header() {
         <Link href="/catalog/#request" onClick={() => setOpen(false)}>
           Заявка{selected.length > 0 ? ` · ${selected.length}` : ''}
         </Link>
+        <StaffLink onClick={()=>setOpen(false)}/>
       </nav>
     </header>
   )

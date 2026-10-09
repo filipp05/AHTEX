@@ -16,3 +16,7 @@ playwright-report/
 test-results/
 
 !.env.server.example
+
+.local/
+data/
+backups/

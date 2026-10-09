@@ -5,3 +5,12 @@
 !server/*.mjs
 !deploy/
 !deploy/API.Dockerfile
+
+!lib/
+!lib/catalog.ts
+!lib/types.ts
+!content/
+!content/catalog.json
+!scripts/
+!scripts/admin-user.mjs
+!scripts/admin-backup.mjs

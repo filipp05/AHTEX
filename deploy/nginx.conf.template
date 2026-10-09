@@ -49,12 +49,20 @@ server {
     add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formspree.io; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://formspree.io" always;
 
-    location = /api/request {
-        client_max_body_size 64k;
+    location ^~ /api/ {
+        client_max_body_size 10m;
         proxy_pass http://api:3101;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Origin $http_origin;
+        proxy_connect_timeout 3s;
+        proxy_read_timeout 30s;
+        access_log off;
+    }
+
+    location ^~ /media/ {
+        proxy_pass http://api:3101;
+        proxy_set_header Host $host;
         proxy_connect_timeout 3s;
         proxy_read_timeout 30s;
         access_log off;

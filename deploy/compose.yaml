@@ -38,8 +38,14 @@ services:
       API_HOST: 0.0.0.0
       API_PORT: 3101
       TRUST_PROXY: 1
+      DATA_DIR: /data
+      BACKUP_DIR: /backups
+      CREDENTIAL_DIR: /data/credentials
     expose:
       - "3101"
+    volumes:
+      - ${DATA_ROOT:?DATA_ROOT is required}:/data
+      - ${BACKUP_ROOT:?BACKUP_ROOT is required}:/backups
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]

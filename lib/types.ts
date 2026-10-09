@@ -7,7 +7,22 @@ export type CatalogDetails = {
   application: string
   documents: { title: string; url: string }[]
 }
+export type CatalogParameter = {
+  id: string
+  label: string
+  type: 'select' | 'number' | 'text'
+  options: string[]
+  unit: string
+  hint: string
+  required: boolean
+  min?: number
+  max?: number
+}
+export type CatalogPhoto = { url: string; alt: string }
 export type CatalogItem = {
+  photos?: CatalogPhoto[]
+  parameters?: CatalogParameter[]
+  order?: number
   id: string
   item_type: CatalogItemType
   title: string
