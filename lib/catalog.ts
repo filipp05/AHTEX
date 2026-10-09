@@ -1,4 +1,4 @@
-import type { CatalogDetails } from './types'
+import type { CatalogDetails, CatalogItem } from './types'
 export const emptyDetails: CatalogDetails = { specs: [], variants: [], length: false, application: '', documents: [] }
 export function safeDocumentUrl(value: string): boolean {
   return /^\/files\/[a-zA-Z0-9_/-]+\.pdf$/.test(value) && !value.includes('..')
@@ -16,4 +16,18 @@ export function parseDetails(value: unknown): CatalogDetails {
 }
 export function configuredItemId(id: string, variant: string, length: string): string {
   return variant || length ? `${id}::${encodeURIComponent(JSON.stringify([variant, length]))}` : id
+}
+
+export function parseCatalog(value: unknown): CatalogItem[] {
+  if (!Array.isArray(value)) throw new Error('Каталог должен быть массивом')
+  const ids = new Set<string>()
+  return value.map(item => {
+    if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(item.id) || ids.has(item.id)) throw new Error('У каждой позиции должен быть уникальный постоянный id')
+    if (!['product', 'service'].includes(item.item_type)) throw new Error('Тип позиции: product или service')
+    for (const [key, max] of [['title', 160], ['description', 2000]] as const) {
+      if (typeof item[key] !== 'string' || !item[key].trim() || item[key].length > max) throw new Error(`Проверьте ${key} позиции ${item.id}`)
+    }
+    ids.add(item.id)
+    return { ...item, details: parseDetails(item.details) } as CatalogItem
+  })
 }

@@ -10,28 +10,21 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:db": "node scripts/test-db.mjs",
     "test:e2e": "playwright test",
     "test:connected": "node scripts/test-connected.mjs",
     "start:api": "node --env-file-if-exists=.env.server server/start.mjs",
     "test:mail": "node --test server/*.test.mjs",
-    "db:migrate": "node --env-file-if-exists=.env.server scripts/database.mjs migrate",
-    "db:editor": "node --env-file-if-exists=.env.server scripts/database.mjs editor",
-    "db:check": "node --env-file-if-exists=.env.server scripts/database.mjs check",
     "test:mail:browser": "node scripts/test-mail-browser.mjs"
   },
   "dependencies": {
     "@fontsource-variable/onest": "^5.3.1",
-    "@supabase/supabase-js": "2.116.0",
     "next": "^16.4.0",
     "nodemailer": "^10.0.16",
-    "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "@electric-sql/pglite": "^0.5.8",
     "@playwright/test": "^1.64.0",
     "@types/node": "26.6.2",
     "@types/react": "19.3.0",

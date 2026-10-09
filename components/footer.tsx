@@ -29,7 +29,6 @@ export function Footer() {
       <div className="footer-bottom">
         <span>© {new Date().getFullYear()} {site.name}</span>
         <Link href="/privacy/">Обработка персональных данных</Link>
-        <Link href="/admin/" className="admin-link">Управление сайтом</Link>
       </div>
     </footer>
   )

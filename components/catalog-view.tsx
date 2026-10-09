@@ -1,11 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { fallbackCatalog } from '@/lib/fallback-catalog'
-import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase'
-import type { CatalogItem, CatalogItemType } from '@/lib/types'
+import { useMemo, useState } from 'react'
+import { catalogItems } from '@/lib/static-catalog'
+import type { CatalogItemType } from '@/lib/types'
 import { CatalogCard } from './catalog-card'
-import { parseDetails } from '@/lib/catalog'
 import { useSelection } from './selection-provider'
 
 const labels: Record<CatalogItemType, string> = {
@@ -15,36 +13,8 @@ const labels: Record<CatalogItemType, string> = {
 
 export function CatalogView() {
   const [activeType, setActiveType] = useState<CatalogItemType>('product')
-  const [items, setItems] = useState<CatalogItem[]>(fallbackCatalog)
-  const [loading, setLoading] = useState(isSupabaseConfigured())
-  const [notice, setNotice] = useState('')
+  const items = catalogItems
   const { selected } = useSelection()
-
-  useEffect(() => {
-    const supabase = getSupabaseClient()
-    if (!supabase) return
-
-    let active = true
-    supabase
-      .from('catalog_items')
-      .select('*')
-      .order('created_at', { ascending: true })
-      .retry(false)
-      .abortSignal(AbortSignal.timeout(8000))
-      .then(({ data, error }) => {
-        if (!active) return
-        if (error) {
-          setNotice('Не удалось обновить каталог. Показана сохранённая базовая версия.')
-        } else if (data) {
-          try { setItems(data.map(item => ({ ...item, details: parseDetails(item.details) })) as CatalogItem[]) } catch { setNotice('Не удалось обновить каталог. Показана сохранённая версия.') }
-        }
-        setLoading(false)
-      })
-
-    return () => {
-      active = false
-    }
-  }, [])
 
   const visibleItems = useMemo(
     () => items.filter((item) => item.item_type === activeType),
@@ -68,10 +38,7 @@ export function CatalogView() {
         ))}
       </div>
 
-      {notice && <p className="inline-notice" role="status">{notice}</p>}
-      {loading && <p className="catalog-loading" role="status">Обновляем каталог…</p>}
-
-      {!loading && visibleItems.length === 0 ? (
+      {visibleItems.length === 0 ? (
         <div className="catalog-empty">
           <p className="eyebrow">Раздел готов</p>
           <h2>Перечень {activeType === 'service' ? 'услуг' : 'продукции'} уточняется</h2>
