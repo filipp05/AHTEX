@@ -92,12 +92,11 @@ export function RequestForm() {
         <p className="eyebrow light">Заявка</p>
         <h2>Расскажите, что нужно решить</h2>
         <p>
-          Выберите позиции в каталоге или отправьте общий запрос на техническую консультацию.
+          {endpoint ? 'Выберите позиции в каталоге или отправьте общий запрос на техническую консультацию.' : 'Выберите продукцию или опишите задачу. Мы соберём текст письма для отправки по электронной почте.'}
         </p>
       </div>
 
       <form ref={formRef} className="request-form" onSubmit={handleSubmit} onInput={saveDraft}>
-        {!endpoint && <p className="request-notice">Онлайн-отправка пока недоступна. Подготовьте запрос и отправьте его на <a href={`mailto:${site.email}`}>{site.email}</a>.</p>}
         <div className="form-section-heading">
           <span>01</span>
           <div>
@@ -203,7 +202,7 @@ export function RequestForm() {
           <button className="button accent" type="submit" disabled={status === 'sending'}>
             {status === 'sending' ? 'Отправляем…' : endpoint ? 'Отправить заявку' : 'Подготовить запрос'}
           </button>
-          <p>Данные используются для ответа на ваше обращение.</p>
+          <p>{endpoint ? 'Данные используются для ответа на ваше обращение.' : <>На следующем шаге можно скопировать текст или открыть письмо на <a href={`mailto:${site.email}`}>{site.email}</a>. Отправить его нужно из своей почты.</>}</p>
         </div>
 
         <div className="form-status" aria-live="polite">
