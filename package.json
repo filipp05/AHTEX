@@ -17,7 +17,9 @@
     "test:mail:browser": "node scripts/test-mail-browser.mjs",
     "admin:user": "node --env-file-if-exists=.env.server scripts/admin-user.mjs",
     "admin:backup": "node --env-file-if-exists=.env.server scripts/admin-backup.mjs",
-    "test:server": "node --test server/*.test.mjs"
+    "test:server": "node --test server/*.test.mjs",
+    "mail:check": "node --env-file-if-exists=.env.server scripts/mail-check.mjs",
+    "mail:test": "node --env-file-if-exists=.env.server scripts/mail-check.mjs --send-test"
   },
   "dependencies": {
     "@fontsource-variable/onest": "^5.3.1",

@@ -2,7 +2,8 @@ import nodemailer from 'nodemailer'
 
 export function createMailer(env = process.env) {
   const required = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS', 'MAIL_FROM', 'MAIL_TO']
-  if (required.some(key => !env[key])) return null
+  if (required.some(key => typeof env[key] !== 'string' || !env[key].trim())) return null
+  if (!/^[a-zA-Z0-9.-]+$/.test(env.SMTP_HOST)) throw new Error('Invalid SMTP hostname')
   const email = /^[^\s<>@,;]+@[^\s<>@,;]+\.[^\s<>@,;]+$/
   if (!email.test(env.MAIL_FROM) || !email.test(env.MAIL_TO)) throw new Error('Invalid server mail addresses')
   const port = Number(env.SMTP_PORT || 465)
