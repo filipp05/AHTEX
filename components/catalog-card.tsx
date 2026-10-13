@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Image from 'next/image'
+import { AnchorArtwork } from './anchor-artwork'
 import type { CatalogItem } from '@/lib/types'
 import { configuredItemId, emptyDetails, safeDocumentUrl } from '@/lib/catalog'
 import { useSelection } from './selection-provider'
@@ -34,9 +35,10 @@ export function CatalogCard({ item, index, preview = false }: { item: CatalogIte
   }
   return <article className={`catalog-card ${item.item_type} visual-${index % 3}`}>
     <div className="catalog-card-topline"><span>{String(index + 1).padStart(2, '0')}</span><span>{item.item_type === 'product' ? 'Продукция' : 'Услуга'}</span></div>
-    {item.photos?.length ? <div className="product-photos"><Image unoptimized src={item.photos[Math.min(photo,item.photos.length-1)].url} alt={item.photos[Math.min(photo,item.photos.length-1)].alt||item.title} width={600} height={360}/>{item.photos.length>1&&<div className="photo-switcher">{item.photos.map((p,i)=><button type="button" key={p.url} aria-label={`Фото ${i+1}`} aria-pressed={i===photo} onClick={()=>setPhoto(i)}>{i+1}</button>)}</div>}</div> : item.item_type === 'product' && !item.parameters && <div className="catalog-card-visual" aria-hidden="true"><span/><i/></div>}
+
     <h2>{item.title}</h2><p>{item.description}</p>
-    {(details.specs.length > 0 || details.application) && <details className="product-details"><summary>{item.item_type === 'product' ? 'Характеристики и применение' : 'Что вы получите'}</summary>
+    {(details.specs.length > 0 || details.application || Boolean(item.photos?.length)) && <details className="product-details"><summary>{item.photos?.length ? 'Изображения и характеристики' : item.item_type === 'product' ? 'Характеристики и применение' : 'Что вы получите'}</summary>
+{item.photos?.length ? <div className="product-photos">{item.photos[Math.min(photo,item.photos.length-1)].url==='/images/anchor-sheet.webp'?<AnchorArtwork compact/>:<Image unoptimized src={item.photos[Math.min(photo,item.photos.length-1)].url} alt={item.photos[Math.min(photo,item.photos.length-1)].alt||item.title} width={600} height={360}/>}{item.photos.length>1&&<div className="photo-switcher">{item.photos.map((p,i)=><button type="button" key={p.url} aria-label={`Фото ${i+1}`} aria-pressed={i===photo} onClick={()=>setPhoto(i)}>{i+1}</button>)}</div>}</div> : item.item_type === 'product' && !item.parameters && <div className="catalog-card-visual" aria-hidden="true"><span/><i/></div>}
       {details.specs.length > 0 && <dl className="spec-list">{details.specs.map(s => <div key={s.label}><dt>{s.label}</dt><dd>{s.value}</dd></div>)}</dl>}
       {details.application && <p>{details.application}</p>}
     </details>}

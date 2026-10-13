@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowIcon, FileIcon, ShieldIcon } from '@/components/icons'
-import { TechnicalVisual } from '@/components/technical-visual'
+import { AnchorArtwork } from '@/components/anchor-artwork'
 
 export default function HomePage() {
   return (
@@ -26,7 +27,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="hero-visual-wrap">
-            <TechnicalVisual label="Трубчатый анкер · схематическая иллюстрация" />
+            <AnchorArtwork priority />
           </div>
         </div>
         <div className="container hero-index">
@@ -60,6 +61,10 @@ export default function HomePage() {
             </div>
             <p>Для шахт, рудников и подрядчиков, работающих под землёй.</p>
           </div>
+          <div className="application-media">
+            <figure><Image src="/images/tunnel-context.webp" alt="Подземная тоннельная выработка" width={775} height={977}/><figcaption>Подземные работы</figcaption></figure>
+            <figure><Image src="/images/anchoring-application.webp" alt="Иллюстрация установки крепи в горной выработке" width={809} height={703}/><figcaption>Анкерное крепление · иллюстрация применения</figcaption></figure>
+          </div>
           <div className="application-grid">
             {[
               ['01', 'Крепление кровли и бортов'],
@@ -79,12 +84,12 @@ export default function HomePage() {
 
       <section className="section production-teaser">
         <div className="container production-grid">
-          <TechnicalVisual label="Анкерное крепление · схематическая иллюстрация" />
+          <div className="production-fact"><p className="eyebrow">Производственные возможности</p><strong>До 80 000</strong><p>комплектов анкеров с опорными плитами в месяц</p><span>Производство в Хабаровске</span></div>
           <div className="production-copy">
             <p className="eyebrow">Собственное производство</p>
             <h2>Серийное производство в Хабаровске</h2>
             <p>
-              Автоматизированная линия выпускает до 80 000 комплектов анкеров с опорными плитами в месяц. Геометрические и механические характеристики проходят контроль.
+              Автоматизированная линия выпускает трубчатые анкеры и опорные плиты. Геометрические и механические характеристики проходят контроль.
             </p>
             <p>«АнТех Восток» развивает производство систем крепления для горнодобывающей промышленности, тоннельного и инфраструктурного строительства. Одно из направлений — сотрудничество с «Карбо-ЦАКК» и объединение производственных возможностей с отраслевой экспертизой.</p>
             <Link className="button secondary" href="/production/">О производстве <ArrowIcon /></Link>

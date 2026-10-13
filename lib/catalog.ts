@@ -27,7 +27,7 @@ export function parseCatalog(value: unknown): CatalogItem[] {
     for (const [key, max] of [['title', 160], ['description', 2000]] as const) {
       if (typeof item[key] !== 'string' || !item[key].trim() || item[key].length > max) throw new Error(`Проверьте ${key} позиции ${item.id}`)
     }
-    if (item.photos !== undefined && (!Array.isArray(item.photos) || item.photos.length > 3 || !item.photos.every((p: {url?: unknown; alt?: unknown}) => typeof p?.url === 'string' && /^\/media\/[a-f0-9-]+\.webp$/.test(p.url) && typeof p.alt === 'string' && p.alt.length <= 160))) throw new Error('Допустимо до 3 фотографий')
+    if (item.photos !== undefined && (!Array.isArray(item.photos) || item.photos.length > 3 || !item.photos.every((p: {url?: unknown; alt?: unknown}) => typeof p?.url === 'string' && (/^\/media\/[a-f0-9-]+\.webp$/.test(p.url) || p.url === '/images/anchor-sheet.webp') && typeof p.alt === 'string' && p.alt.length <= 160))) throw new Error('Допустимо до 3 фотографий')
     if (item.parameters !== undefined) {
       if (!Array.isArray(item.parameters) || item.parameters.length > 10) throw new Error('Допустимо до 10 параметров заявки')
       const keys = new Set()
