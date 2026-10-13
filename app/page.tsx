@@ -25,14 +25,6 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <div className="hero-visual-wrap">
-            <TechnicalVisual label="Трубчатый анкер · схематическая иллюстрация" />
-          </div>
-        </div>
-        <div className="container hero-index">
-          <span>01 / Производство</span>
-          <span>02 / Продукция</span>
-          <span>03 / Техническая поддержка</span>
         </div>
       </section>
 
