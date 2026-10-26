@@ -37,6 +37,28 @@ test('HTTP delivers via real SMTP to fixed mailbox; visitor is Reply-To; duplica
  assert.ok(text.includes(result.id)); assert.ok(text.includes(valid['Состав заявки']))
  assert.equal((await send()).status, 200); assert.equal(messages.length, 1)
 })
+test('multipart request validates and delivers technical attachments by email', async t => {
+ const {messages,url}=await fixture(t)
+ const form=new FormData()
+ for(const [key,value] of Object.entries(valid))form.set(key,value)
+ form.append('Комментарий','Прилагаю чертёж')
+ form.append('attachments',new Blob(['%PDF-1.7\nexample drawing'],{type:'application/pdf'}),'drawing.pdf')
+ const send=()=>fetch(url,{method:'POST',headers:{origin},body:form})
+ const first=await send();assert.equal(first.status,200)
+ assert.equal(messages.length,1)
+ assert.match(messages[0].raw,/filename="?drawing\.pdf"?/)
+ assert.match(messages[0].raw,/application\/pdf/)
+ assert.ok(messages[0].raw.includes(Buffer.from('%PDF-1.7\nexample drawing').toString('base64')))
+ assert.equal((await send()).status,200);assert.equal(messages.length,1)
+})
+test('multipart rejects unsupported formats, forged PDF content and too many files',async t=>{
+ const {messages,url}=await fixture(t)
+ const send=async(files)=>{const form=new FormData();for(const [key,value] of Object.entries(valid))form.set(key,value);for(const [name,content] of files)form.append('attachments',new Blob([content]),name);return fetch(url,{method:'POST',headers:{origin},body:form})}
+ assert.equal((await send([['program.exe','not executable']])).status,400)
+ assert.equal((await send([['drawing.pdf','not a pdf']])).status,400)
+ assert.equal((await send(Array.from({length:6},(_,i)=>[`file${i}.dxf`,'0\nSECTION']))).status,400)
+ assert.equal(messages.length,0)
+})
 test('server rejects missing consent/contact, invalid email, unknown recipient and long input', async t => {
  const { send, messages } = await fixture(t)
  for (const body of [{...valid,'Согласие':''},{...valid,email:''},{...valid,email:'x@example.test\r\nBcc: x@y.test'},{...valid,to:'attacker@example.test'},{...valid,'Комментарий':'x'.repeat(3001)}]) assert.equal((await send(body)).status,400)

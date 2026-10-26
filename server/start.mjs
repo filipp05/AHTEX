@@ -1,14 +1,17 @@
 import { backupStore } from './backup.mjs'
 import { JsonStore } from './store.mjs'
 import { createAdminHandler } from './admin-api.mjs'
-import { migrateSeed } from './catalog-service.mjs'
+import { migrateSeed, reconcileSeed } from './catalog-service.mjs'
 import { readFile } from 'node:fs/promises'
 import { createApp } from './app.mjs'
 import { createMailer } from './mail.mjs'
 const origin = process.env.SITE_ORIGIN
 if (!origin || new URL(origin).origin !== origin) throw new Error('Set SITE_ORIGIN to the exact site origin')
 const store = new JsonStore(process.env.DATA_DIR || './.local/data')
-await store.init(migrateSeed(JSON.parse(await readFile(new URL('../content/catalog.json',import.meta.url),'utf8'))))
+const seed=migrateSeed(JSON.parse(await readFile(new URL('../content/catalog.json',import.meta.url),'utf8')))
+await store.init(seed)
+const current=await store.read()
+if(reconcileSeed(current,seed))await store.change(state=>reconcileSeed(state,seed),{backup:true})
 if(process.env.BACKUP_DIR){
  let running=false
  const backup=async()=>{if(running)return;running=true;try{await backupStore(store,process.env.BACKUP_DIR);console.log('Catalogue backup completed')}catch{console.error('Catalogue backup failed; check storage and permissions')}finally{running=false}}

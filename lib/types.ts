@@ -15,6 +15,8 @@ export type CatalogParameter = {
   unit: string
   hint: string
   required: boolean
+  presentation?: 'inline' | 'modal'
+  multiline?: boolean
   min?: number
   max?: number
 }

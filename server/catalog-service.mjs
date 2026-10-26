@@ -8,6 +8,34 @@ export function migrateSeed(items) {
   ...(item.details?.length?[{id:'length',label:'Длина',type:'number',options:[],unit:'мм',hint:'600–3000 мм; другие длины — по согласованию',required:false,min:1,max:99999}]:[]),
  ]}))
 }
+export function reconcileSeed(state, seed) {
+ const active=new Map(seed.map(item=>[item.id,item]))
+ const initial='Начальное наполнение'
+ let changed=false
+ for(const item of seed){
+  const record=state.items.find(row=>row.id===item.id)
+  if(!record){const at=new Date().toISOString();state.items.push({id:item.id,version:1,draft:structuredClone(item),published:structuredClone(item),hidden:false,changedAt:at,changedBy:initial,history:[]});changed=true;continue}
+  const requiredParameters=item.parameters||[]
+  const mergeParameters=target=>{if(!target)return false;const current=target.parameters||[];const missing=requiredParameters.filter(parameter=>!current.some(value=>value.id===parameter.id));if(!missing.length)return false;target.parameters=[...current,...structuredClone(missing)];return true}
+  const draftParametersChanged=mergeParameters(record.draft)
+  const publishedParametersChanged=mergeParameters(record.published)
+  const parametersChanged=draftParametersChanged||publishedParametersChanged
+  if(record.version===1&&record.changedBy===initial&&!record.hidden&&JSON.stringify(record.published)!==JSON.stringify(item)){
+   record.history.unshift({version:record.version,at:record.changedAt,by:record.changedBy,action:'seed-update',content:structuredClone(record.draft)})
+   record.history=record.history.slice(0,20);record.draft=structuredClone(item);record.published=structuredClone(item);record.version++;record.changedAt=new Date().toISOString();record.changedBy='Обновление каталога';record.action='seed-update';changed=true
+  }else if(parametersChanged){
+   record.history.unshift({version:record.version,at:record.changedAt,by:record.changedBy,action:'parameter-update',content:structuredClone(record.draft)})
+   record.history=record.history.slice(0,20);record.version++;record.changedAt=new Date().toISOString();record.changedBy='Обновление каталога';record.action='parameter-update';changed=true
+  }
+ }
+ for(const record of state.items){
+  if(!active.has(record.id)&&record.published?.item_type==='service'&&['10000000-0000-4000-8000-000000000004','10000000-0000-4000-8000-000000000005','10000000-0000-4000-8000-000000000006'].includes(record.id)&&!record.hidden){
+   record.history.unshift({version:record.version,at:record.changedAt,by:record.changedBy,action:'hide',content:structuredClone(record.draft)})
+   record.history=record.history.slice(0,20);record.hidden=true;record.version++;record.changedAt=new Date().toISOString();record.changedBy='Обновление каталога';record.action='hide';changed=true
+  }
+ }
+ return changed
+}
 export function contentForSave(value,id,publish,state) {
  if(!value||typeof value!=='object')fail(400,'Проверьте заполнение карточки')
  const text=(v,max)=>{if(typeof v!=='string'||v.length>max)fail(400,'Слишком длинный или неверный текст');return v.trim()}

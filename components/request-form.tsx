@@ -11,6 +11,9 @@ type FormStatus = 'idle' | 'sending' | 'success' | 'error' | 'demo'
 
 const endpoint = process.env.NEXT_PUBLIC_FORM_ENDPOINT
 const DRAFT_KEY = 'anteh-contact-draft'
+const MAX_FILES = 5
+const MAX_FILES_BYTES = 15 * 1024 * 1024
+const allowedExtensions = new Set(['pdf', 'jpg', 'jpeg', 'png', 'docx', 'xlsx', 'dwg', 'dxf', 'step', 'stp'])
 
 export function RequestForm() {
   const { selected, remove, setAmount, clear } = useSelection()
@@ -18,6 +21,8 @@ export function RequestForm() {
   const [contactError, setContactError] = useState('')
   const [prepared, setPrepared] = useState('')
   const [copyStatus, setCopyStatus] = useState('')
+  const [files, setFiles] = useState<File[]>([])
+  const [fileError, setFileError] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
   useEffect(() => {
     try {
@@ -46,8 +51,11 @@ export function RequestForm() {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
+    formData.delete('attachments')
+    files.forEach(file => formData.append('attachments', file, file.name))
 
     if (formData.get('company_website')) return
+    if (fileError) { setStatus('idle'); return }
 
     const phone = String(formData.get('phone') ?? '').trim()
     const email = String(formData.get('email') ?? '').trim()
@@ -63,7 +71,8 @@ export function RequestForm() {
     formData.set('Состав заявки', serializeSelectedItems(selected))
 
     if (!endpoint) {
-      setPrepared(Array.from(formData.entries()).filter(([key]) => !['_subject','company_website','Согласие'].includes(key)).map(([key,value]) => `${key}: ${value}`).join('\n\n'))
+      const fields = Array.from(formData.entries()).filter(([key, value]) => !['_subject','company_website','Согласие','attachments'].includes(key) && typeof value === 'string').map(([key,value]) => `${key}: ${value}`).join('\n\n')
+      setPrepared(`${fields}${files.length ? `\n\nФайлы (прикрепить вручную): ${files.map(file => file.name).join(', ')}` : ''}`)
       setStatus('demo')
       return
     }
@@ -72,12 +81,14 @@ export function RequestForm() {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: endpoint.startsWith('/') ? { Accept: 'application/json', 'Content-Type': 'application/json' } : { Accept: 'application/json' },
-        body: endpoint.startsWith('/') ? JSON.stringify(Object.fromEntries(formData)) : formData,
+        headers: { Accept: 'application/json' },
+        body: formData,
         signal: AbortSignal.timeout(15000),
       })
       if (!response.ok) throw new Error(`Ошибка отправки: ${response.status}`)
       form.reset()
+      setFiles([])
+      setFileError('')
       try { sessionStorage.removeItem(DRAFT_KEY) } catch {}
       clear()
       setStatus('success')
@@ -185,6 +196,25 @@ export function RequestForm() {
             placeholder="Опишите условия, задачу или дополнительные требования"
           />
         </label>
+
+        <div className="attachment-field">
+          <label htmlFor="request-attachments">Файлы к заявке</label>
+          <p>Чертежи и документы: PDF, JPG, PNG, DOCX, XLSX, DWG, DXF, STEP. До 5 файлов, суммарно до 15 МБ.</p>
+          <input id="request-attachments" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.dwg,.dxf,.step,.stp" onChange={event => {
+            const incoming = Array.from(event.currentTarget.files || [])
+            event.currentTarget.value = ''
+            const next = [...files, ...incoming]
+            const invalid = next.find(file => !allowedExtensions.has(file.name.split('.').pop()?.toLowerCase() || ''))
+            const tooLarge = next.reduce((total, file) => total + file.size, 0) > MAX_FILES_BYTES
+            if (next.length > MAX_FILES) { setFileError(`Можно приложить не более ${MAX_FILES} файлов.`); return }
+            if (invalid) { setFileError(`Формат файла «${invalid.name}» не поддерживается.`); return }
+            if (tooLarge) { setFileError('Общий размер файлов не должен превышать 15 МБ.'); return }
+            setFiles(next); setFileError('')
+          }}/>
+          {files.length>0&&<ul className="attachment-list">{files.map((file,index)=><li key={`${file.name}-${index}`}><span>{file.name} · {(file.size/1024/1024).toFixed(2)} МБ</span><button type="button" onClick={()=>{const next=files.filter((_,i)=>i!==index);setFiles(next);setFileError('')}} aria-label={`Убрать файл ${file.name}`}>Убрать</button></li>)}</ul>}
+          {!endpoint&&<small>В локальном режиме файлы не отправляются автоматически: прикрепите их вручную в почтовом приложении.</small>}
+          {fileError&&<p className="field-error" role="alert">{fileError}</p>}
+        </div>
 
         <div className="honeypot" aria-hidden="true">
           <label>Не заполняйте это поле<input name="company_website" tabIndex={-1} autoComplete="off" /></label>

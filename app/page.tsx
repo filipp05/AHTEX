@@ -1,6 +1,6 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowIcon, FileIcon, ShieldIcon } from '@/components/icons'
-import { TechnicalVisual } from '@/components/technical-visual'
 
 export default function HomePage() {
   return (
@@ -25,6 +25,9 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
+          <figure className="hero-photo">
+            <Image src="/images/production-line.webp" alt="Производственный участок с оборудованием и металлическими изделиями" fill priority sizes="(max-width: 1100px) 100vw, 48vw" />
+          </figure>
         </div>
       </section>
 
@@ -71,7 +74,9 @@ export default function HomePage() {
 
       <section className="section production-teaser">
         <div className="container production-grid">
-          <TechnicalVisual label="Анкерное крепление · схематическая иллюстрация" />
+          <figure className="production-teaser-image">
+            <Image src="/images/production-close.webp" alt="Металлические изделия на производственном участке" fill sizes="(max-width: 760px) 100vw, 45vw" />
+          </figure>
           <div className="production-copy">
             <p className="eyebrow">Собственное производство</p>
             <h2>Серийное производство в Хабаровске</h2>

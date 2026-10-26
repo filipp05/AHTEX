@@ -912,6 +912,8 @@ h2 { font-size: clamp(1.9rem, 3.2vw, 3.6rem); }
 .catalog-card .add-button { margin-top: auto; }
 .product-details { border-top: 1px solid var(--line); margin-bottom: 18px; }
 .product-details summary { padding-block: 16px; }
+.catalog-card.product .product-details { flex-grow: 1; }
+.catalog-card.product .card-config { min-height: 174px; align-content: start; }
 .production-feature { padding-block: clamp(52px, 6vw, 88px); }
 .production-feature .split-heading { align-items: start; grid-template-columns: 1fr 1fr; gap: clamp(40px, 7vw, 110px); }
 .production-feature h2 { max-width: 650px; font-size: clamp(2rem, 3.2vw, 3.2rem); }
@@ -926,6 +928,50 @@ h2 { font-size: clamp(1.9rem, 3.2vw, 3.6rem); }
   .catalog-card.product > h2, .catalog-card.product > p { min-height: 0; }
 }
 @media (max-width: 760px) { .card-config { grid-template-columns: 1fr; } }
+@media (min-width: 1780px) { .catalog-card.product .card-config { min-height: 82px; } }
+
+/* Client-provided production photography and request controls. */
+.hero-content { gap: clamp(32px, 5vw, 76px); }
+.hero-copy h1 { max-width: 760px; }
+.hero-photo, .production-teaser-image, .production-gallery figure {
+  position: relative; overflow: hidden; margin: 0; border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 24px; background: #292e2d; box-shadow: 0 22px 54px rgb(0 0 0 / 20%);
+}
+.hero-photo { min-height: 320px; aspect-ratio: 1.5; }
+.hero-photo img, .production-teaser-image img, .production-gallery img { object-fit: cover; }
+.hero-photo figcaption { position: absolute; right: 16px; bottom: 16px; padding: 8px 12px; color: #fff; border-radius: 999px; background: rgb(23 26 26 / 72%); font-size: .75rem; }
+.production-teaser-image { min-height: 330px; aspect-ratio: 1.5; border-color: var(--line); box-shadow: var(--shadow-soft); }
+.production-gallery-section { background: var(--surface); }
+.production-gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.production-gallery figure { min-height: 220px; aspect-ratio: 1.5; border-color: var(--line); border-radius: 20px; box-shadow: var(--shadow-soft); }
+.production-gallery figcaption { position: absolute; right: 12px; bottom: 12px; left: 12px; width: fit-content; max-width: calc(100% - 24px); padding: 7px 11px; color: #fff; border-radius: 999px; background: rgb(23 26 26 / 76%); font-size: .73rem; }
+.parameter-hint { grid-column: 1 / -1; margin: 0 !important; font-size: .8rem !important; }
+.parameter-modal-backdrop { position: fixed; z-index: 500; inset: 0; display: grid; padding: 24px; overflow-y: auto; place-items: center; background: rgb(18 21 21 / 68%); backdrop-filter: blur(8px); }
+.parameter-modal { position: relative; width: min(100%, 560px); padding: clamp(26px, 5vw, 42px); border: 1px solid var(--line); border-radius: 26px; background: var(--surface); box-shadow: var(--shadow); }
+.parameter-modal h3 { margin: 0 36px 10px 0; font-size: clamp(1.5rem, 4vw, 2rem); }
+.parameter-modal > p:not(.eyebrow) { color: var(--muted); }
+.parameter-modal-close { position: absolute; top: 18px; right: 18px; display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: transparent; cursor: pointer; font-size: 1.5rem; }
+.parameter-modal-field { display: grid; gap: 8px; margin-top: 22px; font-weight: 600; }
+.parameter-modal-field input, .parameter-modal-field textarea { width: 100%; padding: 14px; border: 1px solid var(--line-strong); border-radius: 12px; background: #fff; resize: vertical; }
+.parameter-modal-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.attachment-field { display: grid; gap: 8px; margin-top: 28px; }
+.attachment-field > label { font-weight: 650; }
+.attachment-field > p, .attachment-field > small { margin: 0; color: var(--muted); font-size: .84rem; }
+.attachment-field input[type="file"] { width: 100%; padding: 12px; border: 1px dashed var(--line-strong); border-radius: 12px; background: rgb(255 255 255 / 55%); }
+.attachment-list { display: grid; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
+.attachment-list li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 12px; border-radius: 10px; background: var(--surface-muted); font-size: .86rem; overflow-wrap: anywhere; }
+.attachment-list button { flex: 0 0 auto; padding: 5px 8px; border: 0; border-radius: 6px; background: transparent; color: var(--red); cursor: pointer; font-weight: 650; }
+@media (max-width: 1100px) { .hero-photo { max-width: 760px; } }
+@media (max-width: 1000px) { .production-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  .production-gallery { grid-template-columns: 1fr; }
+  .hero-photo, .production-teaser-image { min-height: 220px; border-radius: 18px; }
+  .production-gallery figure { min-height: 200px; }
+  .parameter-modal-backdrop { padding: 14px; }
+  .parameter-modal-actions { flex-direction: column-reverse; }
+  .parameter-modal-actions .button { width: 100%; }
+  .attachment-list li { align-items: flex-start; }
+}
 
 /* Staff workspace */
 .staff-link { display: inline-flex; align-items:center; min-height:44px; font-size:.9rem; font-weight:600; }
