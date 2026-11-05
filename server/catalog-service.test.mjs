@@ -4,9 +4,10 @@ import { migrateSeed, reconcileSeed } from './catalog-service.mjs'
 
 const productId='10000000-0000-4000-8000-000000000001'
 const newServiceId='10000000-0000-4000-8000-000000000008'
-const base={id:productId,item_type:'product',title:'Анкер с уточнением редактора',description:'Описание',details:{specs:[],variants:['ТФА39'],length:false,application:'',documents:[]},parameters:[{id:'variant',label:'Исполнение',type:'select',options:['ТФА39'],unit:'',hint:'',required:false}],created_at:'2026-10-09T00:00:00Z',updated_at:'2026-10-09T00:00:00Z'}
+const base={id:productId,item_type:'product',title:'Анкер с уточнением редактора',description:'Описание',details:{specs:[],variants:['ТФА39'],length:false,application:'',documents:[]},parameters:[{id:'variant',label:'Исполнение',type:'select',options:['ТФА39'],unit:'',hint:'',required:false},{id:'wall-thickness',label:'Толщина стенки',type:'number',options:[],unit:'мм',hint:'Желаемая толщина; возможность подтвердим',required:false}],created_at:'2026-10-09T00:00:00Z',updated_at:'2026-10-09T00:00:00Z'}
+const updatedParameters=[{...base.parameters[0]},{...base.parameters[1],label:'Толщина',unitInLabel:false,hint:''},{id:'length',label:'Длина',type:'number',options:[],unit:'мм',hint:'',required:false}]
 const seed=migrateSeed([
- {...base,title:'Анкерная крепь',parameters:[...base.parameters,{id:'wall-thickness',label:'Толщина стенки',type:'number',options:[],unit:'мм',hint:'Укажите',required:false}]},
+ {...base,title:'Анкерная крепь',parameters:updatedParameters},
  {id:newServiceId,item_type:'service',title:'Консультация',description:'Описание',details:{specs:[],variants:[],length:false,application:'',documents:[]},created_at:'2026-10-26T00:00:00Z',updated_at:'2026-10-26T00:00:00Z'},
 ])
 const record=(id,item,changedBy='Сотрудник')=>({id,version:3,draft:structuredClone(item),published:structuredClone(item),hidden:false,changedAt:'2026-10-10T00:00:00Z',changedBy,history:[]})
@@ -17,7 +18,12 @@ test('seed reconciliation adds requested fields, preserves edited product conten
  const state={items:[oldProduct,removed]}
  assert.equal(reconcileSeed(state,seed),true)
  assert.equal(oldProduct.published.title,'Анкер с уточнением редактора')
- assert.ok(oldProduct.published.parameters.some(p=>p.id==='wall-thickness'))
+ const thickness=oldProduct.published.parameters.find(p=>p.id==='wall-thickness')
+ assert.equal(thickness.label,'Толщина')
+ assert.equal(thickness.hint,'')
+ assert.equal(thickness.unitInLabel,false)
+ assert.equal(thickness.unit,'мм')
+ assert.ok(oldProduct.published.parameters.some(p=>p.id==='length'))
  assert.equal(removed.hidden,true)
  assert.ok(state.items.some(item=>item.id===newServiceId))
  assert.equal(reconcileSeed(state,seed),false)

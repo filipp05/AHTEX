@@ -8,7 +8,11 @@ import { SMTPServer } from 'smtp-server'
 import nodemailer from 'nodemailer'
 import { createApp } from '../server/app.mjs'
 const build = env => {
- const r=spawnSync('npm',['run','build'],{stdio:'inherit',env})
+ let r=spawnSync('npm',['run','build'],{stdio:'inherit',env})
+ if(r.status!==0){
+  console.log('Retrying build after the Next.js security reminder...')
+  r=spawnSync('npm',['run','build'],{stdio:'inherit',env})
+ }
  if(r.status!==0)throw new Error('Build failed')
 }
 let browser, api, smtp, staticServer

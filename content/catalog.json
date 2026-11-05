@@ -7,7 +7,7 @@
     "parameters": [
       { "id": "variant", "label": "Исполнение", "type": "select", "options": ["ТФА39", "ТФА40", "ТФА45", "ТФА46", "ТФА47", "ТФА48"], "unit": "", "hint": "", "required": false },
       { "id": "length", "label": "Длина", "type": "number", "options": [], "unit": "мм", "hint": "600–3000 мм; другие длины — по согласованию", "required": false, "min": 1, "max": 99999 },
-      { "id": "wall-thickness", "label": "Толщина стенки", "type": "number", "options": [], "unit": "мм", "hint": "Желаемая толщина; возможность подтвердим", "required": false }
+      { "id": "wall-thickness", "label": "Толщина", "type": "number", "options": [], "unit": "мм", "unitInLabel": false, "hint": "", "required": false }
     ],
     "details": {
       "specs": [
@@ -46,7 +46,7 @@
     "description": "Передают усилие от анкера на поверхность породы, металлическую сетку или армокаркас.",
     "parameters": [
       { "id": "variant", "label": "Размер плиты", "type": "select", "options": ["150 × 150 мм", "200 × 200 мм", "250 × 250 мм"], "unit": "", "hint": "", "required": false },
-      { "id": "plate-thickness", "label": "Толщина", "type": "number", "options": [], "unit": "мм", "hint": "Желаемая толщина; возможность подтвердим", "required": false }
+      { "id": "plate-thickness", "label": "Толщина", "type": "number", "options": [], "unit": "мм", "unitInLabel": false, "hint": "", "required": false }
     ],
     "details": {
       "specs": [

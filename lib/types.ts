@@ -13,6 +13,7 @@ export type CatalogParameter = {
   type: 'select' | 'number' | 'text'
   options: string[]
   unit: string
+  unitInLabel?: boolean
   hint: string
   required: boolean
   presentation?: 'inline' | 'modal'

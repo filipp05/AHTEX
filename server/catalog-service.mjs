@@ -11,12 +11,31 @@ export function migrateSeed(items) {
 export function reconcileSeed(state, seed) {
  const active=new Map(seed.map(item=>[item.id,item]))
  const initial='Начальное наполнение'
+ const previousThicknessLabels={
+  'wall-thickness':{label:'Толщина стенки',hint:'Желаемая толщина; возможность подтвердим'},
+  'plate-thickness':{label:'Толщина',hint:'Желаемая толщина; возможность подтвердим'},
+ }
  let changed=false
  for(const item of seed){
   const record=state.items.find(row=>row.id===item.id)
   if(!record){const at=new Date().toISOString();state.items.push({id:item.id,version:1,draft:structuredClone(item),published:structuredClone(item),hidden:false,changedAt:at,changedBy:initial,history:[]});changed=true;continue}
   const requiredParameters=item.parameters||[]
-  const mergeParameters=target=>{if(!target)return false;const current=target.parameters||[];const missing=requiredParameters.filter(parameter=>!current.some(value=>value.id===parameter.id));if(!missing.length)return false;target.parameters=[...current,...structuredClone(missing)];return true}
+  const mergeParameters=target=>{
+   if(!target)return false
+   const current=target.parameters||[]
+   let didChange=false
+   const missing=requiredParameters.filter(parameter=>!current.some(value=>value.id===parameter.id))
+   if(missing.length){target.parameters=[...current,...structuredClone(missing)];didChange=true}
+   for(const parameter of requiredParameters){
+    const existing=target.parameters.find(value=>value.id===parameter.id),previous=previousThicknessLabels[parameter.id]
+    if(!existing||!previous)continue
+    const previousLabel=existing.label===previous.label
+    if(previousLabel&&parameter.label!==existing.label){existing.label=parameter.label;didChange=true}
+    if(existing.hint===previous.hint&&parameter.hint!==existing.hint){existing.hint=parameter.hint;didChange=true}
+    if(previousLabel&&existing.unitInLabel===undefined&&parameter.unitInLabel===false){existing.unitInLabel=false;didChange=true}
+   }
+   return didChange
+  }
   const draftParametersChanged=mergeParameters(record.draft)
   const publishedParametersChanged=mergeParameters(record.published)
   const parametersChanged=draftParametersChanged||publishedParametersChanged
